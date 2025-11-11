@@ -7,19 +7,29 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-family: 'Georgia', 'Times New Roman', serif;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #2c2416 0%, #1a1510 100%);
         }
         #header {
-            background: rgba(255,255,255,0.95);
+            background: linear-gradient(135deg, #c9a961 0%, #d4b76f 100%);
             padding: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-        #header h1 { color: #667eea; font-size: 24px; }
-        #header p { color: #666; font-size: 14px; margin-top: 5px; }
+        #header h1 { 
+            color: #2c2416; 
+            font-size: 28px; 
+            font-weight: 400;
+            letter-spacing: 2px;
+        }
+        #header p { 
+            color: #3d3020; 
+            font-size: 14px; 
+            margin-top: 5px;
+            font-style: italic;
+        }
         #messages {
             flex: 1;
             overflow-y: auto;
@@ -36,33 +46,57 @@
         .message.user { align-self: flex-end; flex-direction: row-reverse; }
         .message.assistant { align-self: flex-start; }
         .avatar {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             flex-shrink: 0;
+            overflow: hidden;
+            border: 2px solid #c9a961;
         }
-        .message.user .avatar { background: #667eea; }
-        .message.assistant .avatar { background: #10b981; }
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .message.user .avatar { 
+            background: #c9a961;
+            color: #2c2416;
+        }
+        .message.assistant .avatar { 
+            background: white;
+            padding: 0;
+        }
         .bubble {
-            padding: 15px;
+            padding: 15px 18px;
             border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
             line-height: 1.6;
         }
-        .message.user .bubble { background: #667eea; color: white; }
-        .message.assistant .bubble { background: white; color: #333; }
+        .message.user .bubble { 
+            background: linear-gradient(135deg, #c9a961 0%, #d4b76f 100%);
+            color: #2c2416;
+        }
+        .message.assistant .bubble { 
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c2416;
+        }
         .bubble h3 {
             margin: 0 0 10px 0;
             font-size: 16px;
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
+            color: #c9a961;
+            border-bottom: 2px solid #c9a961;
             padding-bottom: 5px;
+            font-weight: 400;
+            letter-spacing: 1px;
         }
-        .message.user .bubble h3 { color: white; border-color: white; }
+        .message.user .bubble h3 { 
+            color: #2c2416; 
+            border-color: #2c2416; 
+        }
         .bubble ul {
             margin: 10px 0;
             padding-left: 20px;
@@ -71,25 +105,37 @@
             margin: 5px 0;
         }
         .bubble strong {
-            color: #667eea;
+            color: #c9a961;
+            font-weight: 600;
         }
-        .message.user .bubble strong { color: white; }
+        .message.user .bubble strong { 
+            color: #2c2416;
+        }
         .bubble p {
             margin: 8px 0;
         }
         .follow-up {
             margin-top: 15px;
             padding-top: 15px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid rgba(201, 169, 97, 0.3);
             font-style: italic;
-            color: #666;
+            color: #7d6c4a;
         }
-        .message.user .follow-up { color: rgba(255,255,255,0.9); border-color: rgba(255,255,255,0.3); }
-        .time { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+        .message.user .follow-up { 
+            color: #3d3020; 
+            border-color: rgba(45, 36, 22, 0.3);
+        }
+        .time { 
+            font-size: 11px; 
+            opacity: 0.7; 
+            margin-top: 5px;
+            font-style: italic;
+        }
         #input-area {
-            background: white;
+            background: rgba(201, 169, 97, 0.1);
             padding: 20px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+            border-top: 1px solid rgba(201, 169, 97, 0.3);
         }
         #input-container {
             display: flex;
@@ -98,33 +144,50 @@
         #user-input {
             flex: 1;
             padding: 12px;
-            border: 2px solid #ddd;
+            border: 2px solid #c9a961;
             border-radius: 10px;
             font-size: 14px;
             font-family: inherit;
             resize: none;
+            background: rgba(255, 255, 255, 0.95);
+            color: #2c2416;
         }
         #user-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #d4b76f;
+            box-shadow: 0 0 0 3px rgba(201, 169, 97, 0.2);
+        }
+        #user-input::placeholder {
+            color: #7d6c4a;
+            font-style: italic;
         }
         button {
-            background: #667eea;
-            color: white;
+            background: linear-gradient(135deg, #c9a961 0%, #d4b76f 100%);
+            color: #2c2416;
             border: none;
             padding: 12px 24px;
             border-radius: 10px;
             cursor: pointer;
             font-weight: 600;
+            font-family: inherit;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
         }
-        button:hover { background: #5568d3; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(201, 169, 97, 0.4);
+        }
+        button:disabled { 
+            background: #5a4f3d;
+            cursor: not-allowed;
+            transform: none;
+        }
         .loading {
             display: inline-block;
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: #667eea;
+            background: #c9a961;
             animation: pulse 1s infinite;
         }
         @keyframes pulse {
@@ -135,15 +198,17 @@
 </head>
 <body>
     <div id="header">
-        <h1>🤖 StoryhouseGPT</h1>
-        <p>AI Studio Assistant • Powered by Claude</p>
+        <h1>STORYHOUSE STUDIO AI</h1>
+        <p>Your home for cinematic storytelling • Powered by Claude</p>
     </div>
 
     <div id="messages">
         <div class="message assistant">
-            <div class="avatar">🤖</div>
+            <div class="avatar">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23c9a961'/%3E%3Ctext x='50' y='65' font-size='50' text-anchor='middle' fill='%232c2416' font-family='Georgia'%3ES%3C/text%3E%3C/svg%3E" alt="AI Assistant">
+            </div>
             <div class="bubble">
-                <div>👋 Hi! I'm StoryhouseGPT, your AI assistant for Storyhouse Studio. Ask me anything about procedures, rates, equipment, or contacts!</div>
+                <div>👋 Welcome to Storyhouse Studio! I'm your AI assistant, here to help with booking procedures, studio specs, equipment, contacts, and everything you need to know about our space.</div>
                 <div class="time" id="init-time"></div>
             </div>
         </div>
@@ -549,7 +614,7 @@ IMPORTANT NOTES:
             messageDiv.id = messageId;
             
             messageDiv.innerHTML = `
-                <div class="avatar">${role === 'user' ? '👤' : '🤖'}</div>
+                <div class="avatar">${role === 'user' ? '👤' : '<img src="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'50\' fill=\'%23c9a961\'/%3E%3Ctext x=\'50\' y=\'65\' font-size=\'50\' text-anchor=\'middle\' fill=\'%232c2416\' font-family=\'Georgia\'%3ES%3C/text%3E%3C/svg%3E" alt="AI">'}</div>
                 <div class="bubble">
                     <div>${content}</div>
                     <div class="time">${new Date().toLocaleTimeString()}</div>
