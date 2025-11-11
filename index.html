@@ -324,307 +324,318 @@ CANCELLATION:
             const generateResponse = async (query) => {
                 const queryLower = query.toLowerCase();
                 
-                // Direct keyword-based responses
-                if (queryLower.includes('rate') || queryLower.includes('price') || queryLower.includes('cost')) {
-                    return `**Booking Rates:**
+                // Overtime/Extra time handling
+                if (queryLower.includes('overtime') || queryLower.includes('extra time') || queryLower.includes('run over') || queryLower.includes('go over') || (queryLower.includes('time') && (queryLower.includes('need') || queryLower.includes('more') || queryLower.includes('additional')))) {
+                    return `Great question! Here's how we handle overtime:
 
-**Peerspace:**
+**Grace Period:**
+We offer a **30-minute grace period** before charging any overage. So if someone goes a bit over, no worries!
+
+**After Grace Period:**
+- **On Peerspace:** $175/hr for additional hours
+- **Direct bookings:** $150/hr for additional hours
+
+**Important Process Notes:**
+- It's common for clients to underestimate setup/breakdown time, so we communicate this clearly during booking
+- If they know ahead of time they'll need more hours, they can add them to their booking
+- For overtime that happens during the shoot, we handle billing within 72 hours via Peerspace's "Add Overtime" feature in the confirmation email
+
+Does that help? Let me know if you need clarification on anything!`;
+                }
+                
+                // Rates inquiry
+                if (queryLower.includes('rate') || queryLower.includes('price') || queryLower.includes('cost') || queryLower.includes('how much')) {
+                    return `Here's our pricing breakdown:
+
+**Peerspace Bookings:**
 - Media Productions: $175/hr
-- Events: $249/hr (events include alcoholic beverages, catering, or speakers)
+- Events: $249/hr
 
-**Direct Booking:**
-- Media Productions: $150/hr
+**Direct Bookings:**
+- Media Productions: $150/hr  
 - Events: $234/hr
 
-**Additional Info:**
+**What counts as an "event"?**
+Any gathering with alcoholic beverages, catering, or speakers present.
+
+**Other details:**
 - Minimum rental: 3 hours
-- Overtime (on platform): $175/hr
-- Overtime (off platform): $150/hr
+- 30-minute grace period before overtime charges kick in
+- Overtime rates: $175/hr (Peerspace) or $150/hr (direct)
 
-Did this answer your question, or would you like more details about something specific?`;
+Need help figuring out which option works best for a specific booking?`;
                 }
                 
+                // Studio PAs
                 if (queryLower.includes('pa') || queryLower.includes('production assistant') || queryLower.includes('contractor')) {
-                    return `**Trained Studio PAs:**
+                    return `Here's our current roster of trained Studio PAs:
 
-**Primary PAs:**
-• Frankie Chamberlain - (228) 369-0233 - Frankie_frank@live.com
-• Stephanie Ward-Harvey - (425) 524-9728 - Stephaniewardharvey@pm.me
-• Josh Jones - (662) 315-5315 - Triplej0612@gmail.com
-• Clay Maxwell - (512) 596-6962 - Claymaxwell@outlook.com
-• Aaron Sowells - (713) 689-4524 - Arod2009@outlook.com
+**Primary Team:**
+• **Frankie Chamberlain** - (228) 369-0233 - Frankie_frank@live.com
+• **Stephanie Ward-Harvey** - (425) 524-9728 - Stephaniewardharvey@pm.me
+• **Josh Jones** - (662) 315-5315 - Triplej0612@gmail.com
+• **Clay Maxwell** - (512) 596-6962 - Claymaxwell@outlook.com
+• **Aaron Sowells** - (713) 689-4524 - Arod2009@outlook.com
 
-All last trained: 11/3/2025
+All were last trained on 11/3/2025.
 
-**Backup PAs:**
-• Nathaniel Christ - (323) 684-9285 - Nathaniel@circuspicnic.com
-• Kelly Greenheart - (512) 576-2345 - Kelly@circuspicnic.com
+**Backup Team:**
+• **Nathaniel Christ** - (323) 684-9285 - Nathaniel@circuspicnic.com
+• **Kelly Greenheart** - (512) 576-2345 - Kelly@circuspicnic.com
 
-Did this answer your question, or would you like more details about something specific?`;
+Need help deciding who to assign to a particular booking?`;
                 }
                 
-                if (queryLower.includes('light') || queryLower.includes('equipment') || queryLower.includes('included') || queryLower.includes('inventory')) {
-                    return `**Lighting & Equipment:**
+                // Lighting/Equipment
+                if (queryLower.includes('light') || queryLower.includes('what') && (queryLower.includes('included') || queryLower.includes('come with'))) {
+                    return `Let me break down what's included vs. available as an add-on:
 
-**Included with EVERY Booking (No Extra Charge):**
-- (3) Basic Nanlite lights package
-- 75 inch Samsung Frame TV
+**Included with EVERY Booking (Free):**
+- (3) Basic Nanlite lights
+- 75" Samsung Frame TV
 - Vestaboard
-- WiFi, Fridge, Microwave, Coffee Machine
-- Sink, Filtered Water (hot/cold), Complimentary Tea
+- WiFi, fridge, microwave, coffee machine
+- Filtered water (hot/cold) + complimentary tea
 
-**Full Lighting Package ($450 flat fee + grip cart):**
-- (4) Nanlite Forza 60B II (Bi-Color) 2700k-6500k
-- (1) Nanlite Forza 300B II (Bi-Color) 2700k-6500k
-- (2) Nanlite Forza 500B II (Bi-Color) 2700k-6500k
+**Full Professional Lighting Package ($450 flat fee + grip cart):**
+- (4) Nanlite Forza 60B II (Bi-Color)
+- (1) Nanlite Forza 300B II
+- (2) Nanlite Forza 500B II  
 - (4) 4ft Quasar RGB lights
-- (2) ~4ft Nanlite Softboxes (Parabolic 120)
-- (2) ~2ft Nanlite Softboxes (60 FMM)
-- Fresnels with barn doors
-- 4x4 black flag
+- Multiple softboxes and modifiers
+- Complete grip cart with stands, clamps, sandbags, etc.
 
-**Grip Cart Inventory:**
-- Combo Stands, C-Stands, Baby Stands, Arri stands
-- Safety cables, clamps, sandbags
-- Extension cords (15ft and 50ft)
+The basic package is perfect for most shoots. The full package is for productions that need professional-grade lighting control.
 
-Did this answer your question, or would you like more details about something specific?`;
+Would you like details on any other equipment?`;
                 }
                 
-                if (queryLower.includes('check in') || queryLower.includes('check-in') || queryLower.includes('setup') || queryLower.includes('prepare')) {
-                    return `**Client Check-In Procedure:**
+                // Check-in procedure
+                if (queryLower.includes('check in') || queryLower.includes('check-in') || queryLower.includes('setup') || queryLower.includes('before') && queryLower.includes('client')) {
+                    return `Here's the full check-in procedure:
 
-**Pre-Guest Setup:**
-1. Set AC to 70-72°F (Auto fan, both lobby and studio) - Start early on hot days
-2. Open Equipment/Prop Room, check inventory
-3. Clean hair/makeup table
-4. Stock snacks (ONLY if <10 people)
-5. Move studio food to reserved fridge section (if 10+ people)
+**Before the Client Arrives:**
+1. Set AC to 70-72°F (both lobby and studio) - start early on hot days!
+2. Open Equipment/Prop Room and verify inventory
+3. Clean the hair/makeup table
+4. Stock snacks on counter (ONLY if fewer than 10 people - remove if 10+)
+5. Move any studio food to the reserved fridge section
 6. Clean tables and floors
-7. Preset special requests
+7. Set up any special requests
 
-**Welcome Setup:**
-- Create custom Vestaboard message (include IG handle)
-- Unlock suite if high traffic needed (33288 A4A)
-- Have building access card ready
+**Welcome Touches:**
+- Create a custom Vestaboard message (include our IG handle)
+- Unlock the suite door if they need high traffic (code: 33288 A4A)
+- Have the building access card ready
 
-**Tour Highlights:**
+**When You Greet Them:**
+Give a tour covering:
 - Bathroom location and code
-- Router reset location
-- Request furniture photos before moving
-- Don't place equipment on nice furniture
-- Exterior door alarm info
-- Both thermostat locations
-- iPad Kasa app for lights
-- Samsung Frame TV screen mirroring
-- End time expectations
+- How to reset the router if needed
+- Ask them to photo furniture before moving it
+- Remind them not to put equipment on nice furniture
+- Explain the exterior door alarm
+- Show both thermostat locations
+- Demo the iPad Kasa app for lights
+- Show Samsung Frame TV screen mirroring features
+- Confirm their end time
 
-Did this answer your question, or would you like more details about something specific?`;
+Anything specific about the check-in process you need clarification on?`;
                 }
                 
-                if (queryLower.includes('check out') || queryLower.includes('check-out') || queryLower.includes('checkout') || queryLower.includes('clean')) {
-                    return `**Client Check-Out Procedure:**
+                // Check-out procedure
+                if (queryLower.includes('check out') || queryLower.includes('check-out') || queryLower.includes('checkout') || queryLower.includes('after') && queryLower.includes('shoot')) {
+                    return `Here's the complete check-out procedure:
 
-**Client Responsibilities:**
-1. Set thermostats to 74°F Auto Fan mode
+**Client's Responsibilities:**
+1. Set both thermostats to **74°F on Auto Fan mode**
 2. Close curtains on both walls
-3. Turn off lights (except hallway to back office)
-4. Return furniture to default locations
-5. Start Roomba (prop doors with sandbags)
-6. Bag trash, leave in hallway
-7. Dispose large trash in dumpsters (NW side near Half Priced Books)
-8. Leave access card on table by sink
-9. Lock equipment/HMU room if used
-10. Clean fridge of leftovers
+3. Turn off all lights (except hallway to back office)
+4. Return furniture to default positions
+5. Start the Roomba (prop doors open with sandbags)
+6. Bag all trash and leave in hallway
+7. Take large trash to dumpsters (NW side by Half Priced Books)
+8. Leave the white access card on the table by sink
+9. Lock equipment/HMU room if they used it
+10. Clean out any food from the fridge
 
-**Internal Tasks:**
-- Leverage crew for larger resets
-- Detailed scan for left items
-- Confirm thermostat at 74°F and curtains closed
-- Check all gear accounted for
+**Our Internal Tasks:**
+- For big productions, have the crew help reset furniture
+- Do a detailed scan for any items left behind
+- Double-check thermostat is at 74°F and curtains are closed
+- Verify all equipment is accounted for
 - Replenish craft services
-- Basic cleaning, set Roomba (clear floor)
-- Check restrooms
-- Re-lock suite: 33288 A5A
+- Run the Roomba (clear the floor first!)
+- Check both restrooms
+- Re-lock the suite door (code: 33288 A5A)
 
-Did this answer your question, or would you like more details about something specific?`;
+Need help with anything specific about the checkout process?`;
                 }
                 
-                if (queryLower.includes('add-on') || queryLower.includes('addon') || queryLower.includes('service') || queryLower.includes('extra')) {
-                    return `**Add-On Services:**
-
-**Space Modifications:**
-- Smoked Glass/Frosted Windows: $200 flat
-- Leadership Office: $50/hr (owner's discretion)
+                // Add-on services
+                if ((queryLower.includes('add') && queryLower.includes('on')) || queryLower.includes('addon') || queryLower.includes('service') || queryLower.includes('extra') || queryLower.includes('crew')) {
+                    return `Here are all our add-on services:
 
 **Staffing:**
 - Field Producer: $100/hr
 - Photographer: $150/hr
 - Director of Photography: $150/hr
-- Professional Videographer: $100/hr
+- Videographer: $100/hr
 - BTS Photography: $150/hr
-- Teleprompter Operator Full Day: $750
-- Teleprompter Operator Half Day: $450
+- Teleprompter Operator: $450 (half day) or $750 (full day)
 
 **Production Equipment:**
-- 19" Teleprompter w/ Miller Tripod: $50/hr (3hr min)
-- EyeDirect - Folding Mark E: $100/item (3hr min)
-- Miller Tripod: $50 flat
-- Sony A7siii Camera w/ lens + tripod: $50/hr
-- Sony FX9 Camera w/ lens: $750/hr
+- Teleprompter w/ tripod: $50/hr (3hr min)
+- EyeDirect: $100/item (3hr min)
+- Sony A7siii Camera package: $50/hr
+- Sony FX9 Camera package: $750/hr
+- Full Lighting Package: $450 flat + grip cart
 - Small Grip Kit: $100 flat
-- Continuous Lighting Package: $450 flat + grip cart
 
-**Office Supplies:**
+**Space & Other:**
+- Smoked Glass/Frosted Windows: $200 flat
+- Leadership Office: $50/hr
 - Vibe Board: $60/hr
-- Wooden Chalkboard: $30/hr
-
-**Other:**
 - Overnight Equipment Storage: $500 flat
 - Overnight Beverage Storage: $100 flat
 
-Did this answer your question, or would you like more details about something specific?`;
+Want help putting together a package for a specific production?`;
                 }
                 
-                if (queryLower.includes('access') || queryLower.includes('door') || queryLower.includes('code') || queryLower.includes('security') || queryLower.includes('lock')) {
-                    return `**Studio Access & Security:**
+                // Access/Security
+                if (queryLower.includes('access') || queryLower.includes('door') || queryLower.includes('code') || queryLower.includes('lock') || queryLower.includes('key')) {
+                    return `Here's everything about studio access:
 
-**Hours:** 8am-9pm
+**Hours:** 8am-9pm daily
 
-**Door Access:**
-- Building locked before 8am and after 6pm M-F
-- Locked all hours on weekends
-- Exterior key card needed (pick up day before, leave on table by sink)
-- Suite door code provided in rental guide
-- To unlock suite for day: **33288 A4A**
-- To lock suite: **33288 A5A**
+**Building Access:**
+- Doors lock before 8am and after 6pm on weekdays
+- Locked all day on weekends
+- Clients need the exterior key card (pick up day before, return to table by sink)
 
-**Parking:** Both sides of building, freight elevator available
+**Suite Door Codes:**
+- To unlock for the day: **33288 A4A**
+- To lock at end of day: **33288 A5A**
+
+**Parking:** Available on both sides of the building, plus freight elevator access
 
 **Security Contacts:**
-- Non-emergency: 512-888-1354 (Corners 1 office building)
-- Emergency: 911
+- Non-emergency issues: 512-888-1354 (tell them "Corners 1 office building")
+- Emergencies: 911
 
-Did this answer your question, or would you like more details about something specific?`;
+Any specific access questions?`;
                 }
                 
-                if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('email') || queryLower.includes('property') || queryLower.includes('management')) {
-                    return `**Contact Information:**
+                // Contact information
+                if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('email') || queryLower.includes('call') || queryLower.includes('reach')) {
+                    return `Here's who to contact for what:
 
 **Property Management (Danly Properties):**
-• Melissa Beatty (Senior Property Manager)
-  - Phone: (512) 219-7717 or (512) 219-9551
-  - Email: mbeatty@danlyproperties.com
-  - Main point of contact
+• **Melissa Beatty** - Senior Property Manager (main contact)
+  - (512) 219-7717 or (512) 219-9551
+  - mbeatty@danlyproperties.com
 
-• Allen Newman (Project Manager)
-  - Phone: (512) 871-9672
-  - Email: anewman@danlyproperties.com
-  - Building maintenance
+• **Allen Newman** - Project Manager (building maintenance)
+  - (512) 871-9672
+  - anewman@danlyproperties.com
 
 **Cleaning Services:**
-• Evelyn Tavernier (Express Commercial Cleaning)
-  - Phone: (512) 919-4333
-  - Email: info@expresscommercialcleaning.com
+• **Evelyn Tavernier** - Express Commercial Cleaning
+  - (512) 919-4333
+  - info@expresscommercialcleaning.com
 
-**Studio Location:**
+**Studio Address:**
 3001 S Lamar Blvd Suite 220, Austin, TX 78704
 
-Did this answer your question, or would you like more details about something specific?`;
+Who do you need to get in touch with?`;
                 }
                 
+                // Maintenance
                 if (queryLower.includes('maintenance') || queryLower.includes('daily') || queryLower.includes('weekly') || queryLower.includes('clean') || queryLower.includes('craft')) {
-                    return `**Daily & Weekly Maintenance:**
+                    return `Here's our maintenance schedule:
 
 **Ring Camera:**
-- Lasts ~1 month per charge
-- Notifications sent at 20% battery
-- Use orange tool to remove
-- See video guide for reinstallation
+- Battery lasts about a month
+- You'll get notified at 20%
+- Use the orange tool to remove it
+- Check the video guide for reinstalling
 
 **Craft Services:**
-- Refill weekly from backstock in lockers
-- Monthly Costco run: Keurig pods, sparkling water, snacks (including gluten-free)
+- Refill weekly from backstock (in lockers)
+- Monthly Costco run for: eco-friendly Keurig pods, sparkling water, snacks (include gluten-free options)
 
 **Cleaning Schedule:**
+- **Daily (M-F):** Building janitorial handles trash, kitchenette, door glass, handles
+- **Weekly:** Vacuum/sweep, wipe desktops (Express CC)
+- **Monthly:** Dust blinds (Express CC)
+- **As Needed:** Deep cleans, glass/mirror cleaning (Express CC)
 
-**Daily (M-F) - Building Janitorial:**
-- Empty trash, wipe kitchenette
-- Clean door glass, sanitize handles/keypad
-
-**Weekly (Express CC):**
-- Vacuum/sweep, wipe desktops
-
-**Monthly (Express CC):**
-- Dust blinds
-
-**Special (Express CC):**
-- Deep cleans, interior glass/mirror cleaning
-
-Did this answer your question, or would you like more details about something specific?`;
+What specific maintenance task do you need info on?`;
                 }
                 
-                if (queryLower.includes('booking') || queryLower.includes('inquiry') || queryLower.includes('peerspace') || queryLower.includes('platform')) {
-                    return `**Booking Information:**
+                // Booking/Inquiry
+                if (queryLower.includes('booking') || queryLower.includes('inquiry') || queryLower.includes('peerspace') || queryLower.includes('respond')) {
+                    return `Here's how we handle bookings and inquiries:
 
-**Platforms:**
-1. Peerspace (main platform) - Media Productions ($175/hr) & Meetings ($249/hr)
-2. Email: Studio@debutu.co
-3. Studio Website: www.debutu.co
-4. Google Listing
-5. Austin Film Commission
-6. Giggster
+**Where clients find us:**
+- Peerspace (our main platform)
+- Email: Studio@debutu.co
+- Google listing
+- Website: www.debutu.co
+- Austin Film Commission
+- Giggster
 
-**Response Time Goal:**
-- Respond within 1 hour (ideally 10-30 minutes)
-- Quick responses improve Peerspace ranking
+**Response Time:**
+- **Goal:** Within 1 hour (ideally 10-30 minutes)
+- Quick responses boost our Peerspace ranking and visibility
 
-**After Hours Template:**
+**After-hours template:**
 "Hello and thank you for reaching out! I'm the studio assistant, and am forwarding this to the studio manager's attention asap. We are excited to host you, and will reply to your message as soon as possible."
 
-**Important Details:**
+**Key details to share:**
 - Minimum rental: 3 hours
-- 30 minute grace period before overtime charges
+- 30-minute grace period before overtime
 - Studio capacity: 49 people
-- Share Studio Rental Guide once booking confirmed
+- Send the Studio Rental Guide once booking is confirmed
 
-Did this answer your question, or would you like more details about something specific?`;
+Need help responding to a specific inquiry?`;
                 }
                 
-                if (queryLower.includes('post') || queryLower.includes('review') || queryLower.includes('after') || queryLower.includes('follow up')) {
-                    return `**Post-Rental Procedures (Within 72 Hours):**
+                // Post-rental/Reviews
+                if (queryLower.includes('post') || queryLower.includes('review') || queryLower.includes('after') || queryLower.includes('follow')) {
+                    return `Here's what to do after a rental (within 72 hours):
 
-**1. Update Charges on Peerspace:**
-- Use "Add Overtime" or "Add Other Charges" links in confirmation email
-- This is the ONLY way to report overtime/add-ons/damages
-- Must be done within 72 hours
+**1. Handle Billing (Peerspace):**
+Use the confirmation email to add overtime or other charges - this is the ONLY way to do it, and you have 72 hours.
 
 **2. Request Reviews:**
-Message: "Thanks for choosing Storyhouse Studio! If you have feedback, we'd love to hear it. If you're open to a 5-star review, we'd be incredibly grateful."
+Send: "Thanks for choosing Storyhouse Studio! If you have feedback, we'd love to hear it. If you're open to a 5-star review, we'd be incredibly grateful."
 
-Share Google Review and Peerspace Review links
+Then share the Google Review and Peerspace links.
 
 **3. Add to CRM:**
-- Add email/phone/IG handle to VidLead CRM/Newsletter
-- Request permission for marketing use of photos/videos
+- Get their email/phone/IG handle for VidLead
+- Ask permission to use any photos/videos for marketing
 
-Did this answer your question, or would you like more details about something specific?`;
+Anything specific about post-rental follow-up you're working on?`;
                 }
                 
                 // Default response for unmatched queries
-                return `I found information in the SOPs, but I'm not sure exactly what you're looking for. Here are some topics I can help with:
+                return `I'm here to help! I didn't quite catch what you're asking about. Here are some things I can help with:
 
-**Common Questions:**
+**Common questions:**
 • Booking rates and procedures
-• Studio PAs contact information
-• Equipment and lighting included
-• Check-in/check-out procedures
-• Add-on services and pricing
-• Studio access and security codes
+• Overtime and extra time policies
+• Studio PA contact information
+• Equipment and lighting (what's included vs add-ons)
+• Check-in and check-out procedures
+• Add-on services and crew
+• Studio access codes and security
 • Daily maintenance tasks
-• Property management contacts
+• Contact information for property management
+• Post-rental procedures and reviews
 
-Could you rephrase your question or pick one of these topics?`;
+Could you rephrase your question or let me know which of these topics you're interested in?`;
             };
 
             const handleSend = async () => {
