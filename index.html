@@ -3,594 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StoryhouseGPT - AI Studio Assistant</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>StoryhouseGPT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        #header {
+            background: rgba(255,255,255,0.95);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #header h1 { color: #667eea; font-size: 24px; }
+        #header p { color: #666; font-size: 14px; margin-top: 5px; }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            display: flex;
+            gap: 10px;
+            max-width: 80%;
+        }
+        .message.user { align-self: flex-end; flex-direction: row-reverse; }
+        .message.assistant { align-self: flex-start; }
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+        .message.user .avatar { background: #667eea; }
+        .message.assistant .avatar { background: #10b981; }
+        .bubble {
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .message.user .bubble { background: #667eea; color: white; }
+        .message.assistant .bubble { background: white; color: #333; }
+        .time { font-size: 11px; opacity: 0.7; margin-top: 5px; }
+        #input-area {
+            background: white;
+            padding: 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        }
+        #input-container {
+            display: flex;
+            gap: 10px;
+        }
+        #user-input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+        }
+        #user-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        button:hover { background: #5568d3; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .loading {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+    <div id="header">
+        <h1>🤖 StoryhouseGPT</h1>
+        <p>AI Studio Assistant • Powered by Claude</p>
+    </div>
 
-        // ⚡ CLOUDFLARE WORKER PROXY CONFIGURED ⚡
+    <div id="messages">
+        <div class="message assistant">
+            <div class="avatar">🤖</div>
+            <div class="bubble">
+                <div>👋 Hi! I'm StoryhouseGPT, your AI assistant for Storyhouse Studio. Ask me anything about procedures, rates, equipment, or contacts!</div>
+                <div class="time" id="init-time"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="input-area">
+        <div id="input-container">
+            <textarea id="user-input" rows="2" placeholder="Ask about booking rates, equipment, check-in procedures..."></textarea>
+            <button id="send-btn" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
         const WORKER_URL = 'https://storyhousegpt-proxy.bellamyiiir.workers.dev/';
-        // This proxy handles API calls securely
-
-        function StoryhouseGPT() {
-            const [messages, setMessages] = useState([]);
-            const [input, setInput] = useState('');
-            const [loading, setLoading] = useState(false);
-            const messagesEndRef = useRef(null);
-
-            const sopContent = `
-STORYHOUSE STUDIO - COMPLETE SOP HANDBOOK
+        
+        const SOP_DATA = `STORYHOUSE STUDIO SOP HANDBOOK
 Location: 3001 S Lamar Blvd Suite 220, Austin, TX 78704
-
-=== BOOKING PROCESS ===
-
-PLATFORMS WHERE CLIENTS CAN BOOK:
-1. Peerspace (Main platform - most bookings)
-   - Media Productions: $175/hr
-   - Meetings: $249/hr
-2. Email: Studio@debutu.co
-3. Google Listing
-4. Studio Website: www.debutu.co
-5. Austin Film Commission Studio Facilities
-6. Giggster
-
-INQUIRY RESPONSE TIME:
-- Goal: Respond within 1 hour (ideally 10-30 minutes)
-- This keeps Peerspace rating high and affects algorithm visibility
-- After hours response template: "Hello and thank you for reaching out! I'm the studio assistant, and am forwarding this to the studio manager's attention asap. We are excited to host you, and will reply to your message as soon as possible."
 
 BOOKING RATES:
 - Peerspace Media Productions: $175/hr
-- Peerspace Events: $249/hr (events = alcoholic beverages, catering, or speakers present)
+- Peerspace Events: $249/hr  
 - Direct Media Productions: $150/hr
 - Direct Events: $234/hr
-- Minimum rental: 3 hours
-- Overtime on platform: $175/hr, off platform: $150/hr
+- Minimum: 3 hours
+- Grace period: 30 minutes
+- Overtime: $175/hr (platform), $150/hr (direct)
 
-=== STUDIO SPECIFICATIONS ===
+STUDIO INFO:
+- Size: 1,200 sq ft
+- Capacity: 49 people
+- Hours: 8am-9pm
 
-SIZE: 1,200 sq ft
-CAPACITY: 49 people
-
-INCLUDED WITH EVERY BOOKING (NO EXTRA CHARGE):
-- (3) Basic Nanlite lights package
-- 75 inch Samsung Frame TV
+INCLUDED FREE:
+- (3) Basic Nanlite lights
+- 75" Samsung Frame TV
 - Vestaboard
-- WiFi, Fridge, Microwave, Coffee Machine
-- Sink, Filtered Water (hot/cold)
-- Complimentary Tea bags
+- WiFi, kitchen amenities
 
-FULL LIGHTING PACKAGE INVENTORY (Available as add-on):
-Continuous Lighting Package: $450 flat fee + Comes with grip cart
+ACCESS CODES:
+- Unlock suite: 33288 A4A
+- Lock suite: 33288 A5A
+- Building locked before 8am & after 6pm weekdays
 
-- (4) Nanlite Forza 60B II (Bi-Color) 2700k-6500k
-- (1) Nanlite Forza 300B II (Bi-Color) 2700k-6500k
-- (2) Nanlite Forza 500B II (Bi-Color) 2700k-6500k
-- (4) 4ft Quasar RGB lights
-- (2) ~4ft Nanlite Softboxes (Parabolic 120)
-- (2) ~2ft Nanlite Softboxes (60 FMM)
-- Fresnels with barn doors
-- 4x4 black flag
+STUDIO PAs:
+- Frankie Chamberlain: (228) 369-0233 - Frankie_frank@live.com
+- Stephanie Ward-Harvey: (425) 524-9728 - Stephaniewardharvey@pm.me
+- Josh Jones: (662) 315-5315 - Triplej0612@gmail.com
+- Clay Maxwell: (512) 596-6962 - Claymaxwell@outlook.com
+- Aaron Sowells: (713) 689-4524 - Arod2009@outlook.com
 
-GRIP CART INVENTORY:
-- (3) Combo Stands
-- C-Stands (various sizes)
-- Baby Stands, Arri stands
-- Safety cables, clamps, sandbags
-- Extension cords (15ft and 50ft)
+CONTACTS:
+- Melissa Beatty (Property Mgr): (512) 219-7717 - mbeatty@danlyproperties.com
+- Allen Newman (Maintenance): (512) 871-9672 - anewman@danlyproperties.com
 
-=== STUDIO ACCESS & SECURITY ===
-
-HOURS: 8am-9pm
-
-DOOR ACCESS:
-- Building locked before 8am and after 6pm M-F
-- Locked all hours on weekends
-- Exterior key card needed (pick up day before, leave on table by sink)
-- Suite door code in rental guide
-- To unlock suite for day: 33288 A4A
-- To lock suite: 33288 A5A
-
-PARKING: Both sides of building, freight elevator available
-
-SECURITY:
-- Non-emergency: 512-888-1354 (Corners 1 office building)
-- Emergency: 911
-
-=== ADD-ON SERVICES ===
-
-SPACE MODIFICATIONS:
-- Smoked Glass/Frosted Windows: $200 flat fee
-- Leadership Office: $50/hr (owner's discretion)
-
-STAFFING:
+ADD-ONS:
 - Field Producer: $100/hr
 - Photographer: $150/hr
-- Director of Photography: $150/hr
-- Professional Videographer: $100/hr
-- BTS Photography: $150/hr
-- Teleprompter Operator Full Day: $750
-- Teleprompter Operator Half Day: $450
+- DP: $150/hr
+- Full Lighting Package: $450 flat fee + grip cart`;
 
-PRODUCTION EQUIPMENT:
-- 19" Teleprompter w/ Miller Tripod: $50/hr (3hr min)
-- EyeDirect - Folding Mark E: $100/item (3hr min)
-- Miller Tripod: $50 flat
-- Sony A7siii Camera w/ lens + tripod: $50/hr
-- Sony FX9 Camera w/ lens: $750/hr
-- Small Grip Kit: $100 flat
-- Continuous Lighting Package: $450 flat + grip cart
+        // Initialize
+        document.getElementById('init-time').textContent = new Date().toLocaleTimeString();
+        
+        // Handle Enter key
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
 
-OFFICE SUPPLIES:
-- Vibe Board: $60/hr
-- Wooden Chalkboard: $30/hr
-
-OTHER:
-- Overnight Equipment Storage: $500 flat
-- Overnight Beverage Storage: $100 flat
-
-=== TRAINED STUDIO PAs ===
-
-Frankie Chamberlain
-- Phone: (228) 369-0233
-- Email: Frankie_frank@live.com
-- Last Training: 11/3/2025
-
-Stephanie Ward-Harvey
-- Phone: (425) 524-9728
-- Email: Stephaniewardharvey@pm.me
-- Last Training: 11/3/2025
-
-Josh Jones
-- Phone: (662) 315-5315
-- Email: Triplej0612@gmail.com
-- Last Training: 11/3/2025
-
-Clay Maxwell
-- Phone: (512) 596-6962
-- Email: Claymaxwell@outlook.com
-- Last Training: 11/3/2025
-
-Aaron Sowells
-- Phone: (713) 689-4524
-- Email: Arod2009@outlook.com
-- Last Training: 11/3/2025
-
-BACKUP PAs:
-Nathaniel Christ
-- Phone: (323) 684-9285
-- Email: Nathaniel@circuspicnic.com
-
-Kelly Greenheart
-- Phone: (512) 576-2345
-- Email: Kelly@circuspicnic.com
-
-=== PROPERTY MANAGEMENT ===
-
-Melissa Beatty (Senior Property Manager - Danly Properties)
-- Phone: (512) 219-7717 or (512) 219-9551
-- Email: mbeatty@danlyproperties.com
-- Main point of contact
-
-Allen Newman (Project Manager - Danly Properties)
-- Phone: (512) 871-9672
-- Email: anewman@danlyproperties.com
-- Building maintenance
-
-Evelyn Tavernier (President - Express Commercial Cleaning)
-- Phone: (512) 919-4333
-- Email: info@expresscommercialcleaning.com
-
-=== CLIENT CHECK-IN ===
-
-PRE-GUEST SETUP:
-1. Set AC to 70-72°F (Auto fan, both lobby and studio)
-2. Start AC early on hot days
-3. Open Equipment/Prop Room, check inventory
-4. Clean hair/makeup table
-5. Stock snacks (only if <10 people)
-6. Move studio food to reserved fridge section (if 10+ people)
-7. Clean tables and floors
-8. Preset special requests
-
-WELCOME:
-- Custom Vestaboard message (include IG handle)
-- Unlock suite if high traffic (33288 A4A)
-- Have building access card ready
-
-TOUR HIGHLIGHTS:
-- Bathroom location and code
-- Router reset location
-- Request furniture photos before moving
-- Don't place equipment on nice furniture
-- Exterior door alarm info
-- Both thermostat locations
-- iPad Kasa app for lights
-- Samsung Frame TV screen mirroring
-- End time expectations
-
-=== CLIENT CHECK-OUT ===
-
-CLIENT TASKS:
-1. Set thermostats to 74°F Auto Fan
-2. Close curtains on both walls
-3. Turn off lights (except hallway to back office)
-4. Return furniture to default
-5. Start Roomba (prop doors with sandbags)
-6. Bag trash, leave in hallway
-7. Dispose large trash in dumpsters (NW side near Half Priced Books)
-8. Leave access card on table by sink
-9. Lock equipment/HMU room if used
-10. Clean fridge of leftovers
-
-INTERNAL TASKS:
-- Leverage crew for larger resets
-- Detailed scan for left items
-- Confirm thermostat at 74°F
-- Confirm curtains closed
-- Check all gear accounted for
-- Replenish craft services
-- Basic cleaning
-- Set Roomba (clear floor)
-- Check restrooms
-- Re-lock suite: 33288 A5A
-
-=== DAILY MAINTENANCE ===
-
-RING CAMERA:
-- Lasts ~1 month per charge
-- Notifications at 20%
-- Use orange tool to remove
-- See video guide for reinstall
-
-CRAFT SERVICES:
-- Refill weekly from backstock
-- Monthly Costco run: Keurig pods, sparkling water, snacks
-
-CLEANING:
-Daily (M-F) - Building Janitorial:
-- Empty trash
-- Wipe kitchenette
-- Clean door glass
-- Sanitize handles/keypad
-
-Weekly: Vacuum/sweep, wipe desktops
-Monthly: Dust blinds
-Special: Deep cleans by Express CC
-
-=== POST-RENTAL (Within 72 Hours) ===
-
-1. Update overtime/add-ons on Peerspace via confirmation email
-2. Request reviews: "Thanks for choosing Storyhouse Studio! If you have feedback, we'd love to hear it. If you're open to a 5-star review, we'd be incredibly grateful."
-3. Add to CRM: email/phone/IG to VidLead
-4. Request permission for marketing use
-
-=== STUDIO RULES ===
-
-- No loud music or yelling
-- Food/drink allowed (clean up after)
-- Complete checkout list before leaving
-- Photo furniture before moving
-- Don't place equipment on nice furniture
-
-=== PAYMENT & CANCELLATION ===
-
-PAYMENT: Via Peerspace or direct invoicing
-CANCELLATION:
-- Off Platform: 50% refund within 7 days, 100% beyond 7 days
-- On Platform: Per Peerspace terms
-`;
-
-            useEffect(() => {
-                setMessages([{
-                    role: 'assistant',
-                    content: '👋 Hi! I\'m StoryhouseGPT, your AI assistant for all studio procedures. I can answer questions about:\n\n• Booking procedures & rates\n• Studio access & security\n• Equipment & inventory\n• Check-in/check-out procedures\n• Add-on services & pricing\n• Daily maintenance tasks\n• Contact information\n• And much more!\n\nWhat would you like to know?',
-                    timestamp: new Date()
-                }]);
-            }, []);
-
-            useEffect(() => {
-                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            }, [messages]);
-
-            const findRelevantInfo = (query) => {
-                const queryLower = query.toLowerCase();
-                const keywords = queryLower.split(' ').filter(w => w.length > 2);
-                
-                if (queryLower.includes('pa') || queryLower.includes('production assistant')) {
-                    return sopContent;
-                }
-                
-                if (queryLower.includes('light') || queryLower.includes('equipment') || queryLower.includes('included')) {
-                    return sopContent;
-                }
-                
-                if (queryLower.includes('contact') || queryLower.includes('phone') || queryLower.includes('email')) {
-                    return sopContent;
-                }
-                
-                const sections = sopContent.split('===');
-                const relevantSections = sections.filter(section => {
-                    const sectionLower = section.toLowerCase();
-                    return keywords.some(keyword => sectionLower.includes(keyword));
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Disable input
+            input.disabled = true;
+            document.getElementById('send-btn').disabled = true;
+            
+            // Add user message
+            addMessage('user', message);
+            input.value = '';
+            
+            // Show loading
+            const loadingId = addMessage('assistant', '<span class="loading"></span> <span class="loading"></span> <span class="loading"></span>');
+            
+            try {
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1024,
+                        messages: [{
+                            role: 'user',
+                            content: `You are StoryhouseGPT, a friendly AI assistant for Storyhouse Studio. Answer based ONLY on this SOP:\n\n${SOP_DATA}\n\nQuestion: ${message}\n\nBe conversational and helpful.`
+                        }]
+                    })
                 });
-
-                return relevantSections.length > 0 ? relevantSections.join('\n\n---\n\n') : sopContent;
-            };
-
-            const generateResponse = async (query) => {
-                const relevantInfo = findRelevantInfo(query);
                 
-                const systemPrompt = `You are StoryhouseGPT, a friendly and helpful AI assistant for Storyhouse Studio in Austin, TX. 
-
-YOUR PERSONALITY:
-- Conversational and warm, like a knowledgeable team member
-- Concise but thorough
-- Ask follow-up questions when helpful
-- Use natural language, not robotic responses
-
-YOUR INSTRUCTIONS:
-1. Answer questions ONLY based on the SOP information provided below
-2. When a question could have multiple interpretations, provide ALL relevant answers organized clearly
-3. End responses with a helpful follow-up question when appropriate
-4. Format with headers, bullets, and bold text for readability
-5. If information isn't in the SOPs, say: "I don't have that specific information in our SOPs. Let me connect you with [relevant person/department]."
-
-SOP INFORMATION:
-${relevantInfo}
-
-USER QUESTION: ${query}
-
-Provide a helpful, accurate answer based only on the SOP information above:`;
-
-                try {
-                    const response = await fetch(WORKER_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            model: 'claude-sonnet-4-20250514',
-                            max_tokens: 1024,
-                            messages: [{ 
-                                role: 'user', 
-                                content: systemPrompt 
-                            }]
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('Worker Error:', response.status, errorText);
-                        return `I encountered an error (${response.status}). Please try again. If this persists, the Cloudflare Worker may need troubleshooting.`;
-                    }
-
+                // Remove loading
+                document.getElementById(loadingId).remove();
+                
+                if (!response.ok) {
+                    addMessage('assistant', `Error: ${response.status}. Please try again.`);
+                } else {
                     const data = await response.json();
-                    
-                    if (!data.content || !data.content[0] || !data.content[0].text) {
-                        console.error('Unexpected response format:', data);
-                        return `I received an unexpected response. Please try again.`;
-                    }
-                    
-                    return data.content[0].text;
-                    
-                } catch (error) {
-                    console.error('Fetch Error:', error);
-                    return `I encountered a connection error: ${error.message}. Please check your internet connection and try again.`;
+                    const answer = data.content?.[0]?.text || 'No response received.';
+                    addMessage('assistant', answer);
                 }
-            };
-            };
-
-            const handleSend = async () => {
-                if (!input.trim() || loading) return;
-
-                const userMessage = {
-                    role: 'user',
-                    content: input,
-                    timestamp: new Date()
-                };
-
-                setMessages(prev => [...prev, userMessage]);
-                setInput('');
-                setLoading(true);
-
-                const answer = await generateResponse(input);
-
-                const assistantMessage = {
-                    role: 'assistant',
-                    content: answer,
-                    timestamp: new Date()
-                };
-
-                setMessages(prev => [...prev, assistantMessage]);
-                setLoading(false);
-            };
-
-            const handleKeyPress = (e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                }
-            };
-
-            const quickQuestions = [
-                "What are the booking rates?",
-                "How do I check in clients?",
-                "What add-on services are available?",
-                "What's the check-out procedure?",
-                "Who are the studio PAs?",
-                "What are the daily maintenance tasks?"
-            ];
-
-            const Book = () => (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-                    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-                </svg>
-            );
-
-            const Send = () => (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                </svg>
-            );
-
-            const Info = () => (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <line x1="12" y1="16" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-            );
-
-            const Sparkles = () => (
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707"></path>
-                </svg>
-            );
-
-            return (
-                <div className="flex flex-col h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg">
-                        <div className="max-w-5xl mx-auto px-6 py-6">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                                    <Book />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl font-bold">StoryhouseGPT</h1>
-                                    <p className="text-indigo-100 text-sm">AI Studio Assistant • Always Up-to-Date</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-indigo-50 border-b border-indigo-200">
-                        <div className="max-w-5xl mx-auto px-6 py-3 flex items-start gap-3">
-                            <Info />
-                            <div className="text-sm text-indigo-900">
-                                <span className="font-semibold">📍 3001 S Lamar Blvd Suite 220, Austin, TX</span>
-                                <span className="mx-2">•</span>
-                                <span>1,200 sq ft studio</span>
-                                <span className="mx-2">•</span>
-                                <span>49 person capacity</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto">
-                        <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
-                            {messages.map((msg, idx) => (
-                                <div key={idx} className={`flex gap-4 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                        msg.role === 'user' 
-                                            ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white' 
-                                            : 'bg-gradient-to-br from-emerald-400 to-teal-500 text-white'
-                                    }`}>
-                                        {msg.role === 'user' ? '👤' : '🤖'}
-                                    </div>
-                                    <div className={`flex-1 max-w-3xl ${msg.role === 'user' ? 'text-right' : ''}`}>
-                                        <div className={`inline-block rounded-2xl px-6 py-4 shadow-md ${
-                                            msg.role === 'user'
-                                                ? 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white'
-                                                : 'bg-white border border-gray-200'
-                                        }`}>
-                                            <div style={{ whiteSpace: 'pre-wrap' }}>
-                                                {msg.content.split('\n').map((line, i) => {
-                                                    const parts = line.split(/(\*\*.*?\*\*)/g);
-                                                    return (
-                                                        <p key={i} className="mb-2 last:mb-0">
-                                                            {parts.map((part, j) => {
-                                                                if (part.startsWith('**') && part.endsWith('**')) {
-                                                                    return <strong key={j}>{part.slice(2, -2)}</strong>;
-                                                                }
-                                                                return part;
-                                                            })}
-                                                        </p>
-                                                    );
-                                                })}
-                                            </div>
-                                            <div className={`text-xs mt-2 ${msg.role === 'user' ? 'text-indigo-100' : 'text-gray-400'}`}>
-                                                {msg.timestamp.toLocaleTimeString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-
-                            {loading && (
-                                <div className="flex gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-white">
-                                        🤖
-                                    </div>
-                                    <div className="bg-white rounded-2xl px-6 py-4 shadow-md border border-gray-200">
-                                        <div className="flex items-center gap-2">
-                                            <Sparkles />
-                                            <span className="text-gray-600">Searching SOPs...</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div ref={messagesEndRef} />
-                        </div>
-                    </div>
-
-                    <div className="bg-gray-50 border-t border-gray-200">
-                        <div className="max-w-5xl mx-auto px-6 py-4">
-                            <p className="text-xs font-semibold text-gray-600 mb-3">💡 Quick Questions:</p>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                {quickQuestions.map((q, i) => (
-                                    <button
-                                        key={i}
-                                        onClick={() => setInput(q)}
-                                        className="text-xs text-left bg-white hover:bg-indigo-50 text-gray-700 px-3 py-2 rounded-lg border border-gray-200 transition-all hover:border-indigo-300"
-                                    >
-                                        {q}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white border-t border-gray-200 shadow-lg">
-                        <div className="max-w-5xl mx-auto px-6 py-5">
-                            <div className="flex gap-3">
-                                <textarea
-                                    value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                                    onKeyPress={handleKeyPress}
-                                    placeholder="Ask me anything about Storyhouse Studio procedures..."
-                                    className="flex-1 resize-none border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-indigo-500 text-gray-800"
-                                    rows="2"
-                                    disabled={loading}
-                                />
-                                <button
-                                    onClick={handleSend}
-                                    disabled={!input.trim() || loading}
-                                    className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-300 disabled:to-gray-400 text-white px-6 rounded-xl transition-all disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center"
-                                >
-                                    <Send />
-                                </button>
-                            </div>
-                            <p className="text-xs text-gray-500 mt-2">
-                                Press Enter to send • Shift + Enter for new line
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            );
+            } catch (error) {
+                document.getElementById(loadingId).remove();
+                addMessage('assistant', `Connection error: ${error.message}`);
+            }
+            
+            // Re-enable input
+            input.disabled = false;
+            document.getElementById('send-btn').disabled = false;
+            input.focus();
         }
 
-        ReactDOM.render(<StoryhouseGPT />, document.getElementById('root'));
+        function addMessage(role, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageId = 'msg-' + Date.now();
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}`;
+            messageDiv.id = messageId;
+            
+            messageDiv.innerHTML = `
+                <div class="avatar">${role === 'user' ? '👤' : '🤖'}</div>
+                <div class="bubble">
+                    <div>${content}</div>
+                    <div class="time">${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            return messageId;
+        }
     </script>
 </body>
 </html>
